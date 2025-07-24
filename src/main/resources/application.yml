@@ -1,0 +1,59 @@
+server:
+    port: 8080
+spring:
+    application:
+        name: Health-Check-LoadBalancer
+
+#健康检查
+health:
+    check:
+        allow-partial-success: true # 是否将HTTP错误视为健康
+        consider-http-errors-healthy: true # 是否允许部分成功（如206）
+        interval: 30000 # 30秒检测间隔
+        max-failures: 2 # 失败阈值
+        recovery-interval: 180000 # 3分钟恢复检测间隔
+        recovery-threshold: 1 # 增加恢复阈值
+
+#负载均衡策略
+loadbalancer:
+    strategy: round-robin
+
+#配置HTTP链接参数
+restTemplate:
+    connectionRequestTimeout: 500
+    connectionTimeout: 500 # 连接超时(毫秒)
+    poolLimit: 800
+    routerLimit: 100
+    socketTimeout: 500
+
+banks:
+    configs:
+        1034:
+            bankName: 工商银行
+            urls:
+                - http://192.168.1.10:80/test1
+                - http://172.21.240.1:80/test1
+            weight: 3
+            critical: true
+
+        1035:
+            bankName: 建设银行
+            urls:
+                - http://192.168.1.10:80/test2
+                - http://172.21.240.1:80/test2
+            weight: 2
+
+        1036:
+            bankName: 农业银行
+            urls:
+                - http://192.168.1.10:80/test3
+                - http://172.21.240.1:80/test3
+            weight: 1
+
+#日志配置
+logging:
+    level:
+        com:
+            example:
+                healthcheck: DEBUG
+        root: INFO
