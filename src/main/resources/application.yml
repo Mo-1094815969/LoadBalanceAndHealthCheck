@@ -16,7 +16,7 @@ health:
 
 #负载均衡策略
 loadbalancer:
-    strategy: round-robin
+    strategy: weighted #weighted权重轮询，round-robin轮询，random随机
 
 #配置HTTP链接参数
 restTemplate:
@@ -31,24 +31,26 @@ banks:
         1034:
             bankName: 工商银行
             urls:
-                - http://192.168.1.10:80/test1
-                - http://172.21.240.1:80/test1
-            weight: 3
-            critical: true
+                - url: http://192.168.1.10:80/test1
+                  weight: 3
+                - url: http://172.21.240.1:80/test1
+                  weight: 1
 
         1035:
             bankName: 建设银行
             urls:
-                - http://192.168.1.10:80/test2
-                - http://172.21.240.1:80/test2
-            weight: 2
+                - url: http://127.0.0.1:80/test2
+                  weight: 3
+                - url: http://172.21.240.1:80/test2
+                  weight: 1
 
         1036:
             bankName: 农业银行
             urls:
-                - http://192.168.1.10:80/test3
-                - http://172.21.240.1:80/test3
-            weight: 1
+                - url: http://192.168.1.10:80/test3
+                  weight: 3
+                - url: http://172.21.240.1:80/test3
+                  weight: 1
 
 #日志配置
 logging:

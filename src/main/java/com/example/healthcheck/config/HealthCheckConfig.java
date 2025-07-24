@@ -4,6 +4,10 @@ import com.example.healthcheck.service.BankUrlManager;
 import com.example.healthcheck.service.HealthCheckService;
 import com.example.healthcheck.service.LoadBalancerService;
 import com.example.healthcheck.service.impl.HealthCheckServiceImpl;
+import com.example.healthcheck.service.lbstrategy.LoadBalanceStrategy;
+import com.example.healthcheck.service.lbstrategy.RandomStrategy;
+import com.example.healthcheck.service.lbstrategy.RoundRobinStrategy;
+import com.example.healthcheck.service.lbstrategy.WeightedRoundRobinStrategy;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
@@ -85,7 +89,9 @@ public class HealthCheckConfig {
     public List<String> initialUrls(BankUrlManager bankUrlManager) {
         List<String> allUrls = new ArrayList<>();
         bankUrlManager.getAllBankConfigs().values().forEach(config -> {
-            allUrls.addAll(config.getUrls());
+            config.getUrls().forEach(urlConfig -> {
+                allUrls.add(urlConfig.getUrl());
+            });
         });
         return allUrls;
     }
@@ -110,5 +116,20 @@ public class HealthCheckConfig {
                 recoverySuccessThreshold,
                 loadBalancerService,
                 bankUrlManager);
+    }
+
+//    @Bean
+//    public LoadBalanceStrategy roundRobinStrategy() {
+//        return new RoundRobinStrategy();
+//    }
+//
+//    @Bean
+//    public LoadBalanceStrategy randomStrategy() {
+//        return new RandomStrategy();
+//    }
+
+    @Bean
+    public LoadBalanceStrategy weightedStrategy(BankUrlManager bankUrlManager) {
+        return new WeightedRoundRobinStrategy(bankUrlManager);
     }
 }

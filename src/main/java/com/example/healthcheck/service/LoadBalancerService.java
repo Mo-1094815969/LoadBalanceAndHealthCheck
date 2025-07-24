@@ -1,12 +1,17 @@
 package com.example.healthcheck.service;
 
 import com.example.healthcheck.dto.HealthCheckResult;
+import com.example.healthcheck.service.lbstrategy.LoadBalanceStrategy;
+import com.example.healthcheck.service.lbstrategy.RandomStrategy;
+import com.example.healthcheck.service.lbstrategy.RoundRobinStrategy;
+import com.example.healthcheck.service.lbstrategy.WeightedRoundRobinStrategy;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,23 +27,48 @@ public class LoadBalancerService {
     @Value("${health.check.consider-http-errors-healthy}")
     private boolean considerHttpErrorsHealthy;
 
-    private static final Logger logger = LoggerFactory.getLogger(LoadBalancerService.class);
-//    private final CopyOnWriteArrayList<String> healthyUrls = new CopyOnWriteArrayList<>();
-//    private final AtomicInteger currentIndex = new AtomicInteger(0);
+    @Value("${loadbalancer.strategy}")
+    private String strategyType;
 
+    private static final Logger logger = LoggerFactory.getLogger(LoadBalancerService.class);
     private final BankUrlManager bankUrlManager;
-    private final Map<String, AtomicInteger> bankIndexMap = new ConcurrentHashMap<>();
     private final Map<String, List<String>> healthyBankUrls = new ConcurrentHashMap<>();
 
+    private LoadBalanceStrategy strategy;
+    // 新增三个策略的引用字段
+    private final RoundRobinStrategy roundRobinStrategy;
+    private final RandomStrategy randomStrategy;
+    private final WeightedRoundRobinStrategy weightedStrategy;
+
+    // 新增初始化方法
+    @PostConstruct
+    public void initStrategy() {
+        // 确保配置已注入后再选择策略
+        switch (strategyType.toLowerCase()) {
+            case "random":
+                this.strategy = randomStrategy;
+                break;
+            case "weighted":
+                this.strategy = weightedStrategy;
+                break;
+            case "round-robin":
+            default:
+                this.strategy = roundRobinStrategy;
+        }
+        logger.info("使用负载均衡策略: {}", strategyType);
+    }
+
     @Autowired
-    public LoadBalancerService(BankUrlManager bankUrlManager) {
+    public LoadBalancerService(BankUrlManager bankUrlManager, RoundRobinStrategy roundRobinStrategy, RandomStrategy randomStrategy, WeightedRoundRobinStrategy weightedStrategy) {
         this.bankUrlManager = bankUrlManager;
+        this.roundRobinStrategy = roundRobinStrategy;
+        this.randomStrategy = randomStrategy;
+        this.weightedStrategy = weightedStrategy;
         initializeBankStructures();
     }
 
     private void initializeBankStructures() {
         bankUrlManager.getAllBankConfigs().keySet().forEach(bankId -> {
-            bankIndexMap.put(bankId, new AtomicInteger(0));
             healthyBankUrls.put(bankId, new CopyOnWriteArrayList<>());
         });
     }
@@ -52,8 +82,7 @@ public class LoadBalancerService {
             return null;
         }
 
-        int index = bankIndexMap.get(bankId).getAndUpdate(i -> (i + 1) % urls.size());
-        return urls.get(index);
+        return strategy.chooseUrl(urls);
     }
 
     /**
@@ -61,7 +90,7 @@ public class LoadBalancerService {
      */
     public void updateHealthyUrls(List<String> activeUrls, Map<String, HealthCheckResult> latestResults) {
         // 按资方分组健康URL
-        Map<String, List<String>> newHealthyUrls = new HashMap<>();
+        Map<String, List<String>> newHealthyUrls = new ConcurrentHashMap<>();
 
         activeUrls.forEach(url -> {
             HealthCheckResult result = latestResults.get(url);
@@ -75,7 +104,7 @@ public class LoadBalancerService {
                             ("ERROR".equals(result.getStatus()) && !result.isTrulyUnavailable()));
 
             if (isHealthy) {
-                newHealthyUrls.computeIfAbsent(bankId, k -> new ArrayList<>()).add(url);
+                newHealthyUrls.computeIfAbsent(bankId, k -> new CopyOnWriteArrayList<>()).add(url);
             }
         });
 

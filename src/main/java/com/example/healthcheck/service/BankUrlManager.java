@@ -12,6 +12,7 @@ public class BankUrlManager {
     private final BankUrlConfig bankUrlConfig;
     private final Map<String, String> urlToBankIdMap = new HashMap<>();
     private final Map<String, BankUrlConfig.BankConfig> bankConfigMap = new HashMap<>();
+    private final Map<String, Integer> urlWeights = new HashMap<>(); // 存储URL权重
 
     @Autowired
     public BankUrlManager(BankUrlConfig bankUrlConfig) {
@@ -22,7 +23,11 @@ public class BankUrlManager {
     private void initializeMappings() {
         bankUrlConfig.getConfigs().forEach((bankId, config) -> {
             bankConfigMap.put(bankId, config);
-            config.getUrls().forEach(url -> urlToBankIdMap.put(url, bankId));
+            for (BankUrlConfig.UrlConfig urlConfig : config.getUrls()) {
+                String url = urlConfig.getUrl();
+                urlToBankIdMap.put(url, bankId);
+                urlWeights.put(url, urlConfig.getWeight()); // 存储URL权重
+            }
         });
     }
 
@@ -32,6 +37,10 @@ public class BankUrlManager {
 
     public BankUrlConfig.BankConfig getBankConfig(String bankId) {
         return bankConfigMap.get(bankId);
+    }
+
+    public int getUrlWeight(String url) {
+        return urlWeights.getOrDefault(url, 1); // 默认权重为1
     }
 
     public Map<String, BankUrlConfig.BankConfig> getAllBankConfigs() {

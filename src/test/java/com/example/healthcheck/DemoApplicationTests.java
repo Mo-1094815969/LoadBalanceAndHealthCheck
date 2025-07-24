@@ -15,7 +15,7 @@ class DemoApplicationTests {
     void contextLoads() throws InterruptedException {
         while (true){
             Thread.sleep(2*1000);
-            System.out.println(loadBalancerService.getNextHealthyUrlForBank("bank_001"));
+            System.out.println(loadBalancerService.getNextHealthyUrlForBank("1035"));
         }
     }
 
