@@ -1,8 +1,4 @@
-server:
-    port: 8080
-spring:
-    application:
-        name: Health-Check-LoadBalancer
+#该配置仅做演示,需配置在主体项目YML文件中
 
 #健康检查
 health:
@@ -11,45 +7,28 @@ health:
         consider-http-errors-healthy: true # 是否允许部分成功（如206）
         interval: 30000 # 30秒检测间隔
         max-failures: 2 # 失败阈值
-        recovery-interval: 180000 # 3分钟恢复检测间隔
+        recovery-interval: 60000 # 3分钟恢复检测间隔
         recovery-threshold: 1 # 增加恢复阈值
+    #配置HTTP链接参数
+    restTemplate:
+      connectionRequestTimeout: 500
+      connectionTimeout: 500 # 连接超时(毫秒)
+      poolLimit: 800
+      routerLimit: 100
+      socketTimeout: 500
 
 #负载均衡策略
 loadbalancer:
     strategy: weighted #weighted权重轮询，round-robin轮询，random随机
 
-#配置HTTP链接参数
-restTemplate:
-    connectionRequestTimeout: 500
-    connectionTimeout: 500 # 连接超时(毫秒)
-    poolLimit: 800
-    routerLimit: 100
-    socketTimeout: 500
-
 banks:
     configs:
         1034:
-            bankName: 工商银行
+            bankName: 银行名称
             urls:
-                - url: http://192.168.1.10:80/test1
+                - url: http://xxx.xxx.xxx.xxx:80/uploan/hangzhouTest
                   weight: 3
-                - url: http://172.21.240.1:80/test1
-                  weight: 1
-
-        1035:
-            bankName: 建设银行
-            urls:
-                - url: http://127.0.0.1:80/test2
-                  weight: 3
-                - url: http://172.21.240.1:80/test2
-                  weight: 1
-
-        1036:
-            bankName: 农业银行
-            urls:
-                - url: http://192.168.1.10:80/test3
-                  weight: 3
-                - url: http://172.21.240.1:80/test3
+                - url: http://xxx.xxx.xxx.xxx:10313/uploan/hangzhouTest
                   weight: 1
 
 #日志配置

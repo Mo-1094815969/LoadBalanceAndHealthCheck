@@ -23,10 +23,10 @@ public class BankUrlConfig {
         private List<UrlConfig> urls = new ArrayList<>(); // 改为URL配置列表
         private boolean critical = false; // 是否关键资方
 
-        // 获取所有URL字符串
-        public List<String> getUrlStrings() {
-            return urls.stream().map(UrlConfig::getUrl).collect(Collectors.toList());
-        }
+//        // 获取所有URL字符串
+//        public List<String> getUrlStrings() {
+//            return urls.stream().map(UrlConfig::getUrl).collect(Collectors.toList());
+//        }
     }
 
     @Data

@@ -9,6 +9,8 @@ public interface HealthCheckService {
 
     void performHealthChecks();
 
+    void checkRemovedUrlsForRecovery();
+
     HealthCheckResult checkSingleUrl(String url);
 
 }

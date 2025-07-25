@@ -15,11 +15,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 @Service
 public class HealthCheckServiceImpl implements HealthCheckService {
@@ -40,7 +38,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
     // 配置参数
     private final int maxFailureThreshold;
-    private final int recoveryCheckInterval;
     private final int recoverySuccessThreshold;
     private final LoadBalancerService loadBalancerService;
     private final BankUrlManager bankUrlManager;
@@ -48,14 +45,12 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     public HealthCheckServiceImpl(RestTemplate restTemplate,
                                   CopyOnWriteArrayList<String> activeUrls,
                                   @Value("${health.check.max-failures}") int maxFailureThreshold,
-                                  @Value("${health.check.recovery-interval}") int recoveryCheckInterval,
                                   @Value("${health.check.recovery-threshold}") int recoverySuccessThreshold,
                                   LoadBalancerService loadBalancerService,
                                   BankUrlManager bankUrlManager) {
         this.restTemplate = restTemplate;
         this.activeUrls = activeUrls;
         this.maxFailureThreshold = maxFailureThreshold;
-        this.recoveryCheckInterval = recoveryCheckInterval;
         this.recoverySuccessThreshold = recoverySuccessThreshold;
         this.loadBalancerService = loadBalancerService;
         this.bankUrlManager = bankUrlManager;
@@ -84,10 +79,11 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         logger.info("移除URLs: {}", removedUrls);
     }
 
-    // 新增：每5分钟检查被移除的URL是否恢复
+    // 新增：每1分钟检查被移除的URL是否恢复
     @Scheduled(fixedRateString = "${health.check.recovery-interval}")
     public void checkRemovedUrlsForRecovery() {
         if (removedUrls.isEmpty()) {
+            logger.info("无需恢复的URLs");
             return;
         }
 

@@ -36,19 +36,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @EnableScheduling
 public class HealthCheckConfig {
 
-    @Value("${restTemplate.poolLimit}")
+    @Value("${health.restTemplate.poolLimit}")
     private String poolLimit;
 
-    @Value("${restTemplate.routerLimit}")
+    @Value("${health.restTemplate.routerLimit}")
     private String routerLimit;
 
-    @Value("${restTemplate.socketTimeout}")
+    @Value("${health.restTemplate.socketTimeout}")
     private String socketTimeout;
 
-    @Value("${restTemplate.connectionTimeout}")
+    @Value("${health.restTemplate.connectionTimeout}")
     private String connectionTimeout;
 
-    @Value("${restTemplate.connectionRequestTimeout}")
+    @Value("${health.restTemplate.connectionRequestTimeout}")
     private String connectionRequestTimeout;
 
     @Bean
@@ -97,7 +97,7 @@ public class HealthCheckConfig {
     }
 
     @Bean
-    public CopyOnWriteArrayList<?> healthCheckList(List<String> initialUrls) { // 根据实际泛型类型替换 <?>
+    public CopyOnWriteArrayList<String> healthCheckList(List<String> initialUrls) { // 根据实际泛型类型替换 <?>
         return new CopyOnWriteArrayList<>(initialUrls);
     }
 
@@ -105,14 +105,12 @@ public class HealthCheckConfig {
     public HealthCheckService healthCheckService(RestTemplate restTemplate,
                                                  List<String> initialUrls,
                                                  @Value("${health.check.max-failures}") int maxFailureThreshold,
-                                                 @Value("${health.check.recovery-interval}") int recoveryCheckInterval,
                                                  @Value("${health.check.recovery-threshold}") int recoverySuccessThreshold,
                                                  LoadBalancerService loadBalancerService,
                                                  BankUrlManager bankUrlManager) {
         CopyOnWriteArrayList<String> activeUrls = new CopyOnWriteArrayList<>(initialUrls);
         return new HealthCheckServiceImpl(restTemplate, activeUrls,
                 maxFailureThreshold,
-                recoveryCheckInterval,
                 recoverySuccessThreshold,
                 loadBalancerService,
                 bankUrlManager);
