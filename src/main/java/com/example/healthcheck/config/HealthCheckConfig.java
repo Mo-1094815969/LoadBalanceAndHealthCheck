@@ -36,19 +36,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @EnableScheduling
 public class HealthCheckConfig {
 
-    @Value("${restTemplate.poolLimit}")
+    @Value("${health.restTemplate.poolLimit}")
     private String poolLimit;
 
-    @Value("${restTemplate.routerLimit}")
+    @Value("${health.restTemplate.routerLimit}")
     private String routerLimit;
 
-    @Value("${restTemplate.socketTimeout}")
+    @Value("${health.restTemplate.socketTimeout}")
     private String socketTimeout;
 
-    @Value("${restTemplate.connectionTimeout}")
+    @Value("${health.restTemplate.connectionTimeout}")
     private String connectionTimeout;
 
-    @Value("${restTemplate.connectionRequestTimeout}")
+    @Value("${health.restTemplate.connectionRequestTimeout}")
     private String connectionRequestTimeout;
 
     @Bean

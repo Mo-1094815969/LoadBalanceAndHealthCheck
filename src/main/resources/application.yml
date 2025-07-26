@@ -11,45 +11,36 @@ health:
         consider-http-errors-healthy: true # 是否允许部分成功（如206）
         interval: 30000 # 30秒检测间隔
         max-failures: 2 # 失败阈值
-        recovery-interval: 180000 # 3分钟恢复检测间隔
+        recovery-interval: 60000 # 3分钟恢复检测间隔
         recovery-threshold: 1 # 增加恢复阈值
+    #配置HTTP链接参数
+    restTemplate:
+        connectionRequestTimeout: 500
+        connectionTimeout: 500 # 连接超时(毫秒)
+        poolLimit: 800
+        routerLimit: 100
+        socketTimeout: 500
 
 #负载均衡策略
 loadbalancer:
     strategy: weighted #weighted权重轮询，round-robin轮询，random随机
 
-#配置HTTP链接参数
-restTemplate:
-    connectionRequestTimeout: 500
-    connectionTimeout: 500 # 连接超时(毫秒)
-    poolLimit: 800
-    routerLimit: 100
-    socketTimeout: 500
-
 banks:
+    common:
+        baseUrls:
+            - http://wwww.baidu.com
+            - http://wwww.bing.com
     configs:
-        1034:
-            bankName: 工商银行
-            urls:
-                - url: http://192.168.1.10:80/test1
-                  weight: 3
-                - url: http://172.21.240.1:80/test1
-                  weight: 1
-
-        1035:
-            bankName: 建设银行
-            urls:
-                - url: http://127.0.0.1:80/test2
-                  weight: 3
-                - url: http://172.21.240.1:80/test2
-                  weight: 1
-
-        1036:
-            bankName: 农业银行
-            urls:
-                - url: http://192.168.1.10:80/test3
-                  weight: 3
-                - url: http://172.21.240.1:80/test3
+        1001: { bankName: 杭州银行, path: hangzhou, weights: [3,1] }
+        1002: { bankName: 工商银行, path: icbc, weights: [2,2] }
+        1003: { bankName: 建设银行, path: ccb }
+        1004: { bankName: 农业银行, path: abc, weights: [4,1] }
+        1005:
+            bankName: 特殊银行
+            urls: # 覆盖自动生成
+                - url: http://wwww.baidu.com
+                  weight: 5
+                - url: http://wwww.bing.com
                   weight: 1
 
 #日志配置
