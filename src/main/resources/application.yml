@@ -22,14 +22,22 @@ loadbalancer:
     strategy: weighted #weighted权重轮询，round-robin轮询，random随机
 
 banks:
-    configs:
-        1034:
-            bankName: 银行名称
-            urls:
-                - url: http://xxx.xxx.xxx.xxx:80/uploan/hangzhouTest
-                  weight: 3
-                - url: http://xxx.xxx.xxx.xxx:10313/uploan/hangzhouTest
-                  weight: 1
+  common:
+    baseUrls:
+      - http://wwww.baidu.com
+      - http://wwww.bing.com
+  configs:
+    1001: { bankName: 杭州银行, path: hangzhou, weights: [3,1] }
+    1002: { bankName: 工商银行, path: icbc, weights: [2,2] }
+    1003: { bankName: 建设银行, path: ccb }
+    1004: { bankName: 农业银行, path: abc, weights: [4,1] }
+    1005:
+      bankName: 特殊银行
+      urls: # 覆盖自动生成
+        - url: http://wwww.baidu.com
+          weight: 5
+        - url: http://wwww.bing.com
+          weight: 1
 
 #日志配置
 logging:
