@@ -118,16 +118,6 @@ public class HealthCheckConfig {
                 bankUrlManager);
     }
 
-//    @Bean
-//    public LoadBalanceStrategy roundRobinStrategy() {
-//        return new RoundRobinStrategy();
-//    }
-//
-//    @Bean
-//    public LoadBalanceStrategy randomStrategy() {
-//        return new RandomStrategy();
-//    }
-
     @Bean
     public LoadBalanceStrategy weightedStrategy(BankUrlManager bankUrlManager) {
         return new WeightedRoundRobinStrategy(bankUrlManager);
