@@ -26,7 +26,6 @@ public class BankUrlConfig {
 
     @Data
     public static class BankConfig {
-        private String bankId;
         private String bankName;
         private String path; // 新增：资方专属路径
         private List<UrlConfig> urls = new ArrayList<>();
@@ -47,7 +46,6 @@ public class BankUrlConfig {
     @PostConstruct
     public void init() {
         configs.forEach((bankId, config) -> {
-            config.setBankId(bankId);
 
             // 如果已手动配置URLs，跳过自动生成
             if (!CollectionUtils.isEmpty(config.getUrls())) {
