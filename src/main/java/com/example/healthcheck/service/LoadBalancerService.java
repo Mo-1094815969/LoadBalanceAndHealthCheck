@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-@RefreshScope
 public class LoadBalancerService {
 
     @Value("${health.check.consider-http-errors-healthy}")

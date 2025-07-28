@@ -10,8 +10,8 @@ health:
         allow-partial-success: true # 是否将HTTP错误视为健康
         consider-http-errors-healthy: true # 是否允许部分成功（如206）
         interval: 30 # 30秒检测间隔
-        max-failures: 1 # 失败阈值
-        recovery-interval: 180 # 3分钟恢复检测间隔
+        max-failures: 2 # 失败阈值
+        recovery-interval: 30 # 3分钟恢复检测间隔
         recovery-threshold: 1 # 增加恢复阈值
     #配置HTTP链接参数
     restTemplate:
@@ -28,8 +28,8 @@ loadbalancer:
 banks:
     common:
         baseUrls:
-            - http://172.21.87.171:80/uploan/
-            - http://172.21.87.174:10313/uploan/
+            - http://171.21.87.171:80/uploan/
+            - http://171.21.87.174:10313/uploan/
     configs:
         #weights权重,默认为1
         1003: { bankName: 百信银行, path: bxTest, weights: [1,1] }
@@ -39,39 +39,13 @@ banks:
         1007: { bankName: 江苏银行, path: jsyhTest1 }
         1008: { bankName: 中原消费金融, path: zyTest }
         1009: { bankName: 富民银行, path: fmwjTest }
-        1010: { bankName: 华融消费金融公司, path: hrTest }
-        1011: { bankName: 招联消费金融, path: zlTest }
-        1012: { bankName: 上海农商银行, path: snTest }
-        1013: { bankName: 平安银行, path: pinganTestOp }
-        1014: { bankName: 交通银行, path: jiaotongTest }
-        1015: { bankName: 中银消费金融, path: zhongyinTest }
-        1016: { bankName: 民生银行, path: minshengSSL }
-        1017: { bankName: 江苏银行Max, path: jsyhTest }
-        1018: { bankName: 北京银行, path: bjTest }
-        1019: { bankName: 度小满, path: dxmTest }
-        1021: { bankName: 亿联银行, path: ylTest }
-        1022: { bankName: 中邮消金, path: zhongyouTest }
-        1023: { bankName: 裕民银行, path: ymTest }
-        1024: { bankName: 江苏苏宁银行, path: sningTest }
-        1025: { bankName: 渤海银行, path: bohaiTest }
-        1026: { bankName: 海尔消金-够花, path: haierTest }
-        1027: { bankName: 四川新网银行股份有限公司-够花, path: xinwTest }
-        1028: { bankName: 京东金条, path: jingdongTest }
-        1029: { bankName: 宁波银行, path: ningboTest }
-        1030: { bankName: 北银消金, path: byxjTest }
-        1031: { bankName: 中邮消金, path: zhongyouxjTest }
-        1032: { bankName: 众邦银行, path: zhongbangTest }
-        1033: { bankName: 宁银消金, path: ningyinTest }
-        1034: { bankName: 杭州银行, path: hangzhouTest }
-        1035: { bankName: 中信消金, path: zhongxinTest, weights: [5,1] }
-        1036: { bankName: 广发银行, path: guangfaTest }
-#        9999:
-#            bankName: 特殊银行
-#            urls: # 覆盖自动生成
-#                - url: http://wwww.baidu.com
-#                  weight: 5
-#                - url: http://wwww.bing.com
-#                  weight: 1
+        9999:
+            bankName: 特殊银行
+            urls: # 覆盖自动生成
+                - url: http://wwww.baidu.com
+                  weight: 5
+                - url: http://wwww.bing.com
+                  weight: 1
 
 #日志配置
 logging:

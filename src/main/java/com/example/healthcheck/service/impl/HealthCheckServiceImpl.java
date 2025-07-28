@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
-@RefreshScope
 public class HealthCheckServiceImpl implements HealthCheckService, SchedulingConfigurer {
 
     @Value("${health.check.consider-http-errors-healthy}")

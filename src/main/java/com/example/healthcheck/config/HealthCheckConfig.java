@@ -27,7 +27,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Configuration
 @EnableScheduling
-@RefreshScope
 public class HealthCheckConfig {
 
     @Value("${health.restTemplate.poolLimit}")
