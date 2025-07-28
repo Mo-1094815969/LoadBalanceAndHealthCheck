@@ -91,7 +91,7 @@ public class HealthCheckServiceImpl implements HealthCheckService, SchedulingCon
         // 创建被移除URL列表的快照
         List<String> urlsToCheck = new ArrayList<>(removedUrls);
 
-        urlsToCheck.forEach(url -> {
+        urlsToCheck.parallelStream().forEach(url -> {
             HealthCheckResult result = checkSingleUrl(url);
             logger.info("[恢复]: {}", result.toLogString());
 
