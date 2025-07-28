@@ -79,8 +79,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         logger.info("移除URLs: {}", removedUrls);
     }
 
-    // 新增：每1分钟检查被移除的URL是否恢复
-    @Scheduled(fixedRateString = "${health.check.recovery-interval}")
+    // 新增：每3分钟检查被移除的URL是否恢复
+    @Scheduled(initialDelayString = "${health.check.recovery-interval}",fixedRateString = "${health.check.recovery-interval}")
     public void checkRemovedUrlsForRecovery() {
         if (removedUrls.isEmpty()) {
             logger.info("无需恢复的URLs");
