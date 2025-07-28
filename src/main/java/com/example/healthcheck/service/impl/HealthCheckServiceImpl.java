@@ -8,10 +8,11 @@ import com.example.healthcheck.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
@@ -20,7 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
-public class HealthCheckServiceImpl implements HealthCheckService {
+@RefreshScope
+public class HealthCheckServiceImpl implements HealthCheckService, SchedulingConfigurer {
 
     @Value("${health.check.consider-http-errors-healthy}")
     private boolean considerHttpErrorsHealthy;
@@ -56,7 +58,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         this.bankUrlManager = bankUrlManager;
     }
 
-    @Scheduled(fixedRateString = "${health.check.interval}") // 每30秒执行一次
     @Override
     public void performHealthChecks() {
         logger.info("\n[健康检查] 开始健康检查 {}", DateUtil.nowFormat());
@@ -80,10 +81,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     // 新增：每3分钟检查被移除的URL是否恢复
-    @Scheduled(initialDelayString = "${health.check.recovery-interval}",fixedRateString = "${health.check.recovery-interval}")
     public void checkRemovedUrlsForRecovery() {
         if (removedUrls.isEmpty()) {
-            logger.info("无需恢复的URLs");
             return;
         }
 
@@ -152,7 +151,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
     }
 
-    @Override
     public HealthCheckResult checkSingleUrl(String url) {
         long startTime = System.currentTimeMillis();
         String status = "DOWN";
@@ -161,9 +159,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         boolean isConnectionIssue = false;
 
         try {
-            ResponseEntity<String> response = restTemplate.exchange(
+            ResponseEntity<String> response = restTemplate.postForEntity(
                     url,
-                    HttpMethod.GET,
                     null,
                     String.class
             );
@@ -226,5 +223,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
         // 仅200-299视为成功
         return status.is2xxSuccessful();
+    }
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
+
     }
 }

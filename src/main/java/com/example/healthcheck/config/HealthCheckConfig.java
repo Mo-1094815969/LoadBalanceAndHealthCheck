@@ -1,13 +1,6 @@
 package com.example.healthcheck.config;
 
 import com.example.healthcheck.service.BankUrlManager;
-import com.example.healthcheck.service.HealthCheckService;
-import com.example.healthcheck.service.LoadBalancerService;
-import com.example.healthcheck.service.impl.HealthCheckServiceImpl;
-import com.example.healthcheck.service.lbstrategy.LoadBalanceStrategy;
-import com.example.healthcheck.service.lbstrategy.RandomStrategy;
-import com.example.healthcheck.service.lbstrategy.RoundRobinStrategy;
-import com.example.healthcheck.service.lbstrategy.WeightedRoundRobinStrategy;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
@@ -18,6 +11,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -28,12 +22,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Configuration
 @EnableScheduling
+@RefreshScope
 public class HealthCheckConfig {
 
     @Value("${health.restTemplate.poolLimit}")
@@ -97,27 +91,8 @@ public class HealthCheckConfig {
     }
 
     @Bean
-    public CopyOnWriteArrayList<String> healthCheckList(List<String> initialUrls) { // 根据实际泛型类型替换 <?>
+    public CopyOnWriteArrayList<?> healthCheckList(List<String> initialUrls) { // 根据实际泛型类型替换 <?>
         return new CopyOnWriteArrayList<>(initialUrls);
     }
 
-    @Bean
-    public HealthCheckService healthCheckService(RestTemplate restTemplate,
-                                                 List<String> initialUrls,
-                                                 @Value("${health.check.max-failures}") int maxFailureThreshold,
-                                                 @Value("${health.check.recovery-threshold}") int recoverySuccessThreshold,
-                                                 LoadBalancerService loadBalancerService,
-                                                 BankUrlManager bankUrlManager) {
-        CopyOnWriteArrayList<String> activeUrls = new CopyOnWriteArrayList<>(initialUrls);
-        return new HealthCheckServiceImpl(restTemplate, activeUrls,
-                maxFailureThreshold,
-                recoverySuccessThreshold,
-                loadBalancerService,
-                bankUrlManager);
-    }
-
-    @Bean
-    public LoadBalanceStrategy weightedStrategy(BankUrlManager bankUrlManager) {
-        return new WeightedRoundRobinStrategy(bankUrlManager);
-    }
 }
