@@ -76,7 +76,18 @@ public class HealthCheckServiceImpl implements HealthCheckService, SchedulingCon
         loadBalancerService.updateHealthyUrls(activeUrls, latestResults);
 
         logger.info("[健康检查] 健康检查完成 {}", DateUtil.nowFormat());
-        logger.info("移除URLs: {}", removedUrls);
+        // 按资方分组整理被移除的URLs
+        Map<String, List<String>> removedUrlsByBank = new HashMap<>();
+        removedUrls.forEach(url->{
+            String bankId = bankUrlManager.getBankIdForUrl(url);
+            if (bankId == null) {
+                logger.warn("URL {} 请确认资方是否存在", url);
+                return;
+            }
+            String bankName = bankUrlManager.getBankConfig(bankId).getBankName();
+            removedUrlsByBank.computeIfAbsent(bankName, k -> new ArrayList<>()).add(url);
+        });
+        logger.info("失败的链接: {}", removedUrlsByBank);
     }
 
     // 新增：每3分钟检查被移除的URL是否恢复
