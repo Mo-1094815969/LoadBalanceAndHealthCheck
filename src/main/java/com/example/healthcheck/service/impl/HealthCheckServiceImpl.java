@@ -8,7 +8,6 @@ import com.example.healthcheck.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -21,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
-@RefreshScope
 public class HealthCheckServiceImpl implements HealthCheckService, SchedulingConfigurer {
 
     @Value("${health.check.consider-http-errors-healthy}")
@@ -77,7 +75,18 @@ public class HealthCheckServiceImpl implements HealthCheckService, SchedulingCon
         loadBalancerService.updateHealthyUrls(activeUrls, latestResults);
 
         logger.info("[健康检查] 健康检查完成 {}", DateUtil.nowFormat());
-        logger.info("移除URLs: {}", removedUrls);
+        // 按资方分组整理被移除的URLs
+        Map<String, List<String>> removedUrlsByBank = new HashMap<>();
+        removedUrls.forEach(url->{
+            String bankId = bankUrlManager.getBankIdForUrl(url);
+            if (bankId == null) {
+                logger.warn("URL {} 请确认资方是否存在", url);
+                return;
+            }
+            String bankName = bankUrlManager.getBankConfig(bankId).getBankName();
+            removedUrlsByBank.computeIfAbsent(bankName, k -> new ArrayList<>()).add(url);
+        });
+        logger.info("失败的链接: {}", removedUrlsByBank);
     }
 
     // 新增：每3分钟检查被移除的URL是否恢复
@@ -92,7 +101,7 @@ public class HealthCheckServiceImpl implements HealthCheckService, SchedulingCon
         // 创建被移除URL列表的快照
         List<String> urlsToCheck = new ArrayList<>(removedUrls);
 
-        urlsToCheck.forEach(url -> {
+        urlsToCheck.parallelStream().forEach(url -> {
             HealthCheckResult result = checkSingleUrl(url);
             logger.info("[恢复]: {}", result.toLogString());
 

@@ -2,7 +2,6 @@ package com.example.healthcheck.scheduler;
 
 import com.example.healthcheck.service.HealthCheckService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@RefreshScope
 public class PerformHealthChecksScheduler implements SchedulingConfigurer {
 
     private final HealthCheckService healthCheckService;

@@ -6,7 +6,7 @@ health:
     allow-partial-success: true # 是否将HTTP错误视为健康
     consider-http-errors-healthy: true # 是否允许部分成功（如206）
     interval: 30 # 30秒检测间隔
-    max-failures: 1 # 失败阈值
+    max-failures: 2 # 失败阈值
     recovery-interval: 180 # 3分钟恢复检测间隔
     recovery-threshold: 1 # 增加恢复阈值
   #配置HTTP链接参数
@@ -24,8 +24,8 @@ loadbalancer:
 banks:
   common:
     baseUrls:
-      - http://172.21.87.171:80/uploan/
-      - http://172.21.87.174:10313/uploan/
+      - http://xxxxxxxx:80/uploan/
+      - http://xxxxxxxx:10313/uploan/
   configs:
     #weights权重,默认为1
     1003: { bankName: 百信银行, path: bxTest, weights: [1,1] }
