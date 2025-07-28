@@ -40,7 +40,6 @@ public class HealthCheckServiceImpl implements HealthCheckService, SchedulingCon
 
     // 配置参数
     private final int maxFailureThreshold;
-    private final int recoveryCheckInterval;
     private final int recoverySuccessThreshold;
     private final LoadBalancerService loadBalancerService;
     private final BankUrlManager bankUrlManager;
@@ -48,14 +47,12 @@ public class HealthCheckServiceImpl implements HealthCheckService, SchedulingCon
     public HealthCheckServiceImpl(RestTemplate restTemplate,
                                   CopyOnWriteArrayList<String> activeUrls,
                                   @Value("${health.check.max-failures}") int maxFailureThreshold,
-                                  @Value("${health.check.recovery-interval}") int recoveryCheckInterval,
                                   @Value("${health.check.recovery-threshold}") int recoverySuccessThreshold,
                                   LoadBalancerService loadBalancerService,
                                   BankUrlManager bankUrlManager) {
         this.restTemplate = restTemplate;
         this.activeUrls = activeUrls;
         this.maxFailureThreshold = maxFailureThreshold;
-        this.recoveryCheckInterval = recoveryCheckInterval;
         this.recoverySuccessThreshold = recoverySuccessThreshold;
         this.loadBalancerService = loadBalancerService;
         this.bankUrlManager = bankUrlManager;
